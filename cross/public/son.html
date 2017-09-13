@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>son</title>
+	<script>
+	document.domain = 'tt.com';//iframe调用window.parent需要设置domain，postMessage则不需要
+	</script>
+</head>
+<body>
+	<div class="son">son(点击这里发送xhr请求，用window.parent传值)</div>
+	<div class="name"></div>
+	<div id="container" style="width:200px; height:100px; background-color:rgb(204, 102, 0);">
+		发送xhr请求，用postMessage跨域传值
+    </div>
+	<script>
+	!(function() {
+		console.log(window.name);
+
+		var son = {
+			els: {},
+			init: function() {
+				this.pushEls();
+				this.bindEvent();
+				this.renderName();
+				this.postMessage();
+			},
+			bindEvent: function() {
+				this.els.son.onclick = function() {
+					this.xhrSend(function(data) {
+						window.parent.render(data);
+					});
+					//this.fetchSend();
+				}.bind(this);
+
+				this.els.container.onclick = function() {
+					this.xhrSend(function(data) {
+						window.parent.postMessage(data, '*');
+					});
+				}.bind(this);
+			},
+			pushEls: function() {
+				this.els['son'] = this.querySelect('.son');
+				this.els['name'] = this.querySelect('.name');
+				this.els['container'] = this.querySelect('#container');
+			},
+			renderName: function() {
+				if (window.name !== '') {
+					this.els.name.innerHTML = 'window.name = ' + window.name;
+				}
+			},
+			querySelect: function(el) {
+				return document.querySelector(el);
+			},
+			xhrSend: function(fn) {
+				console.log('send xhr');
+				var xhr = new XMLHttpRequest();
+				//xhr.open('GET', 'http://m-son.tt.com/cross', true);
+				xhr.open('GET', 'http://127.0.0.1:3000/cross', true);//测试cors
+				
+				xhr.onreadystatechange = function() {
+					if (xhr.readyState === 4 && (xhr.status === 200 || xhr.status === 304)) {
+				    	fn && fn(xhr.responseText)
+				  	}
+				};
+				xhr.send();	
+			},
+			fetchSend: function() {
+				console.log('send fetch');
+				fetch('http://m-son.tt.com/cross', {
+			        method: 'GET'
+			    }).then(function(data) {
+			    	data.json().then(function(e) {
+			    		window.parent.render(JSON.stringify(e));
+			    	});
+			    }).catch(function(e) {
+			    	console.log(e);
+			    });
+			},
+			postMessage: function() {
+				window.addEventListener('message', function(e) {
+					console.log(e, '--message son', e.source == window.parent);
+	                if(e.source != window.parent) return;
+	                var color = this.els.container.style.backgroundColor;
+	                window.parent.postMessage(color, '*');
+	            }.bind(this), false);
+			}
+		};
+		son.init();
+	})();
+	</script>
+</body>
+</html>

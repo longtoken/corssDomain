@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>corss</title>
+	<script>
+	document.domain = 'tt.com';
+	function createDiv(id, text) {
+		var oDiv = document.createElement('div');
+		oDiv.id = id;
+		oDiv.innerHTML = text;
+		return oDiv;
+	}
+	function render(data, channel) {
+		var oDiv = createDiv('son', data + '--用' + (channel ? channel : 'window.parent') + '传值');
+		document.body.appendChild(oDiv);
+	}
+	function seta(data) {
+		console.log(data.path);
+		var oDiv = createDiv('seta', '文件上传的回调：' + data.path);
+		document.body.appendChild(oDiv);
+	}
+	window.name = '{ cross: "name" }';
+	</script>
+	<style>
+	* {
+		margin: 0;
+		padding: 0;
+	}
+	#add {
+		width: 100%;
+		height: 100px;
+	}
+	</style>
+</head>
+<body>
+	<div id="add">
+		parent(点击我将跳转http://m-son.tt.com/son.html，测试window.name)
+	</div>
+
+
+	<!-- 文件上传，兼容IE8-->
+	<iframe width="200px" height="200px" src="http://m-parent.tt.com/file.html"></iframe>
+	 
+	
+	<!-- 跨域
+	<iframe width="100%" height="200px" src="http://m-son.tt.com/son.html" frameborder="0"></iframe>
+	<script>
+	document.getElementById('add').onclick = function() {
+		location.href = 'http://m-son.tt.com/son.html';
+	};
+
+	window.onload = function() {
+        window.frames[0].postMessage('做什么事情', 'http://m-son.tt.com/son.html');
+    };
+ 
+    window.addEventListener('message', function(e) {
+    	console.log(e, '--message parent');
+    	render(e.data, 'postMessage');
+    },false);
+	</script>-->
+</body>
+</html>
